@@ -1,0 +1,16 @@
+body {
+    /* background-image: url('{% static 'bg3.jpg' %}'); */
+    background-image: url("bg3.jpg");
+  }
+
+#content {
+  position: absolute;
+  top:40%;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  width:80vw;
+  text-align: center;
+}
+ 

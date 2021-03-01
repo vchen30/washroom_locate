@@ -1,0 +1,304 @@
+<!-- # mysite/wee/templates/wee/layouts/base.html -->
+
+<!DOCTYPE html>
+{% load static %}
+{% load reviews %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Where 2 Wee</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+    <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+    type="text/css"
+    />
+
+    <!-- <link rel="stylesheet" href="./style.css"> -->
+    <link rel="stylesheet" type="text/css" href="{% static 'base.css'%}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+    function map(loc){
+          $("#instructions").hide();
+          //initializing the map
+          mapboxgl.accessToken = 'pk.eyJ1IjoieHVrdWttaSIsImEiOiJja2QweWQ5amUwMWZkMnJuOTNrcHphNzEwIn0.Agj9LSXxw95ve9jAXXdKPA';
+          console.log(loc)
+          var map = new mapboxgl.Map({
+              container: 'map',
+              maxBounds: [[-123.426622, 48.970], [-122.380035, 49.48]],
+              style: 'mapbox://styles/mapbox/streets-v10',
+              // style: 'mapbox://styles/mapbox/light-v10',
+              center: loc,
+              zoom: 12,
+              attributionControl: false
+          });
+          map.addControl(new mapboxgl.AttributionControl(), 'top-left');
+
+          //defualt marker
+          var marker = new mapboxgl.Marker()
+            .setLngLat(loc)
+            .addTo(map);
+
+          //adding search bar
+          map.addControl(
+            new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl
+            }),'top-left'
+          );
+
+          //add "my location" button to map
+          map.addControl(
+              new mapboxgl.GeolocateControl({
+                  positionOptions: {
+                  enableHighAccuracy: true
+                  },
+                  trackUserLocation: true
+              }), 'top-left'
+          );
+          // retrieving the data from model to javascript objects
+          {% if queryset %}
+
+          var data = {
+              type: 'FeatureCollection',
+              features: []
+          };
+          {% for toilet in queryset %}
+
+          //set toilet.rating to 0 for now until database reset
+
+
+          data.features.push(
+              {type: 'Feature', properties: {
+                 Name: '<b>Toilet ID: {{toilet.id}}</b>'.concat("<br> <a href='{% url 'washroom_detail' toilet.id %}'>Visit Page</a>").concat("<br> <a href='{% url 'review_washroom' toilet.id %}'>Review</a>"),
+                  id:{{toilet.id}} }, geometry: { type: 'Point', coordinates: [{{toilet.location.x}}, {{toilet.location.y}}] }}
+              )
+
+          {% endfor %}
+          {% endif %}
+          //loading the data onto the map
+          map.on('load', function() {
+              map.addLayer({
+                  id: 'data',
+                  type: 'symbol',
+                  source: {
+                  type: 'geojson',
+                  data: data
+                  },
+                  layout: {
+                  'icon-image': 'toilet-15',
+                  'icon-allow-overlap': true
+                  },
+                  paint: { }
+              });
+          });
+
+          var popup = new mapboxgl.Popup();
+
+          map.on('mousemove', function(e) {
+          var features = map.queryRenderedFeatures(e.point, { layers: ['data'] });
+              if (!features.length) {
+                  popup.remove();
+                  return;
+              }
+              var feature = features[0];
+
+              popup.setLngLat(feature.geometry.coordinates)
+                  .setHTML(feature.properties.Name)
+                  .addTo(map);
+
+              map.getCanvas().style.cursor = features.length ? 'pointer' : '';
+          });
+          //right click to move default location
+          map.on('contextmenu', function(e) {
+            loc = [e.lngLat.lng,e.lngLat.lat]
+            getRoute(loc)
+            marker.remove();
+            $("#instructions").hide();
+            //console.log(marker._lngLat.lng)
+            marker = new mapboxgl.Marker()
+            .setLngLat(loc)
+            .addTo(map);
+          });
+
+          //hides instructions if you click on nothing
+          map.on('click', function(e) {
+            $("#instructions").hide();
+
+          });
+
+          map.on('click', function(e) {
+            var features = map.queryRenderedFeatures(e.point, { layers: ['data'] });
+            if (!features.length) {
+              popup.remove();
+              return;
+            }
+            $("#instructions").show();
+            var feature = features[0];
+            getRoute(feature.geometry.coordinates);
+          });
+
+        // create a function to make a directions request
+        function getRoute(end) {
+          // make a directions request using walking profile
+          // an arbitrary start will always be the same
+          // only the end or destination will change
+          var start = loc;
+          var url = 'https://api.mapbox.com/directions/v5/mapbox/walking/'+
+          start[0]+','+start[1]+';'+end[0]+','+end[1]+
+          '?steps=true&geometries=geojson&access_token='+mapboxgl.accessToken;
+
+          // make an XHR request https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+          var req = new XMLHttpRequest();
+          req.open('GET', url, true);
+          req.onload = function() {
+            var json = JSON.parse(req.response);
+            var data = json.routes[0];
+            var route = data.geometry.coordinates;
+            var geojson = {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates: route
+              }
+            };
+            // if the route already exists on the map, reset it using setData
+            if (map.getSource('route')) {
+              map.getSource('route').setData(geojson);
+            } else { // otherwise, make a new request
+              map.addLayer({
+                id: 'route',
+                type: 'line',
+                source: {
+                  type: 'geojson',
+                  data: {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                      type: 'LineString',
+                      coordinates: geojson
+                    }
+                  }
+                },
+                layout: {
+                  'line-join': 'round',
+                  'line-cap': 'round'
+                },
+                paint: {
+                  'line-color': '#3887be',
+                  'line-width': 5,
+                  'line-opacity': 0.75
+                }
+              });
+            }
+            // get the sidebar and add the instructions
+            var instructions = document.getElementById('instructions');
+            var steps = data.legs[0].steps;
+
+            var tripInstructions = [];
+
+            for (var i = 0; i < steps.length; i++) {
+              tripInstructions.push('<br><li>' + steps[i].maneuver.instruction) + '</li>';
+              instructions.innerHTML = '<br><span class="duration">Trip duration: <br>'
+                + Math.floor(data.duration / 60) + ' min 🚶 </span>' + tripInstructions;
+                //https://emojipedia.org/person-walking/
+            }
+          };
+          req.send();
+        }
+      }//end of map(loc)
+
+    </script>
+    <script src="{% static 'base.js' %}"></script>
+</head>
+
+<body>
+    <script>$("#instructions").hide();</script>
+    {% include 'wee/layouts/navbar.html' %}
+    {% block content %}{% endblock %}
+    <div class="page-header">
+        <a href="{% url 'post_new' %}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
+    </div>
+
+    <div id='map' class="position-absolute"></div>
+    <div id ="instructions"></div>
+    <img id="open_sidebar" src="{% static "back.png" %}" class="toggle" style="opacity: 0.5; width:2vw; height:auto; position: fixed; right: 3%; top: 50%; z-index: 500;"  onclick="toggleNav()">
+    <div id="sidebar" style="width:0;">
+      <form method="POST" action="." id="filter-form">
+        {% csrf_token %}
+              <div class="btn-group btn-group-toggle " data-toggle="buttons" id="type-filter">
+                <label class="btn btn-warning active btn-sm">
+                  <input type="radio" id="unknown" autocomplete="off" name="type" value="Type unknown" checked=""> Show all types
+                </label>
+                <label class="btn btn-warning btn-sm">
+                  <input type="radio" id="flush" autocomplete="off" name="type" value="flush"> Flush
+                </label>
+                <label class="btn btn-warning btn-sm">
+                  <input type="radio" id="pit" autocomplete="off" name="type" value="pitlatrine"> Pit latrine
+                </label>
+                <label class="btn btn-warning btn-sm">
+                  <input type="radio" id="chemical" autocomplete="off" name="type" value="chemical"> Chemical
+                </label>
+              </div>
+              <div class="btn-group-toggle" data-toggle="buttons" style="margin:2px;">
+                <label class="btn btn-warning btn-sm">
+                  <input type="hidden" name="water" value="False"/>
+                  <input type="checkbox" autocomplete="off" name="water" value="True"> Water fountain
+                </label>
+                <label class="btn btn-warning btn-sm">
+                  <input type="hidden" name="wheelchair" value="False" />
+                  <input type="checkbox" autocomplete="off" name="wheelchair" value="True"> Wheelchair
+                </label>
+                <label class="btn btn-warning btn-sm">
+                  <input type="hidden" name="diaper" value="False" />
+                  <input type="checkbox" autocomplete="off" name="diaper" value="True"> Changing table
+                </label>
+              </div>
+
+              <div class="btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-warning btn-sm">
+                  <input type="hidden" name="unisex" value="False" />
+                  <input type="checkbox" autocomplete="off" name="unisex" value="True"> Unisex
+                </label>
+                <label class="btn btn-warning btn-sm">
+                  <input type="hidden" name="access" value="False" />
+                  <input type="checkbox" autocomplete="off" name="access" value="True"> Public
+                </label>
+                <label class="btn btn-warning btn-sm">
+                  <input type="hidden" name="indoor" value="False" />
+                  <input type="checkbox" autocomplete="off" name="indoor" value="True"> Indoor
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-dark" "filter_btn" id="submit-btn">
+                Apply filter
+              </button>
+      </form>
+
+      <div id="table-container" class="position-fixed">
+        <table class="table table-hover .w-auto table"  id="toilet-table" >
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col" class= ".th-sm">NEARBY TOILETS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for toilet in queryset %}
+              <tr class="washroom">
+                <td> <a href='{% url 'washroom_detail' toilet.id %}'><strong>Washroom ID: </strong>{{toilet.id}}</a><br>{{toilet.opening_hours}}</td>
+              </tr>
+            {% empty %}
+              <tr><td style="text-align: center"><strong><h4>There are no washrooms that match the filter requirements :(</h4></strong></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+</body>
+</html>

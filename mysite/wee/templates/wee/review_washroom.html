@@ -1,0 +1,165 @@
+<!-- # mysite/wee/templates/wee/review.html -->
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Washroom Details</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{% static 'washroom_detail.css'%}">
+
+</head>
+
+<body>
+  {% include 'wee/layouts/navbar.html' %}
+  {% load reviews %}
+  {% load i18n %}
+
+  <h1>Washroom {{washrooms.id}}</h1>
+  <button id="details" type="button" class="btn btn-info">
+    <a href="{% url "washroom_detail" washrooms.id %}" style="color: white;">
+      View Details
+    </a>
+  </button>
+  
+  <!-- <div class="container" id="toilet-info" style="width:25vw;">
+    <div class="row">>
+      <div class="col"> Rating</div>
+      <div class="col">{{washrooms.rating}}</div>
+
+      <div class="w-100"></div>
+      <div class="col">Type</div>
+      <div class="col">
+        {% if "Type unknown" in washrooms.type %}
+        <p> Not available </p>
+        {% else %}
+        {{washrooms.type}}
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Water fountain</div>
+      <div class="col">
+        {% if "True" in washrooms.water %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Wheelchair</div>
+      <div class="col">
+        {% if "True" in washrooms.wheelchair %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Changing table</div>
+      <div class="col">
+        {% if "True" in washrooms.diaper %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Unisex</div>
+      <div class="col">{% if "True" in washrooms.unisex %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Public</div>
+      <div class="col">{% if "True" in washrooms.access %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Indoor</div>
+      <div class="col">{% if "True" in washrooms.indoor %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+    </div>
+  </div> -->
+
+{% block content %}
+
+	{% load reviews i18n %}
+    {% load reviews %}
+
+
+
+<!-- 	<script>
+		var starRatingControls = new StarRating('#id_rating', {clearable: false, showText: {{ show_rating_text|yesno:"true,false" }}, initialText: '{% trans "Select a rating" %}'});
+
+	</script> -->
+	
+	<!-- {% get_review_form for washrooms as form %} -->
+	<table>
+		<form action="{% review_form_target %}" method="post">{% csrf_token %}
+		  {% if next %}
+		    <input type="hidden" name="next" value="{{ next }}"/>
+		  {% endif %}
+		  {% for field in form %}
+		    {% if field.is_hidden %}
+		      {{ field }}
+		    {% else %}
+		      {% if field.errors %}{{ field.errors }}{% endif %}
+		      <p{% if field.errors %} class="error"{% endif %}{% ifequal field.name "honeypot" %} style="display:none;"{% endifequal %}>
+		        {{ field.label_tag }} {{ field }}
+		      </p>
+		    {% endif %}
+		  {% endfor %}
+		  <p class="submit">
+		    <td colspan="2">
+	        	<input type="submit" name="post" class="submit-post" value="{% trans "Post" %}"/>
+	        	<input type="button" value="Back" onclick="history.back()"/>
+				<input type="hidden" name="next" value="{% url 'review_was_posted' %}" />
+	      	</td>
+		  </p>
+		</form>
+	</table>
+
+	{{ form.media }}
+	<style>
+		.gl-star-rating[data-star-rating] { display: inline-block; }
+	</style>
+	<script>
+		var starRatingControls = new StarRating('#id_rating', {clearable: false, showText: {{ show_rating_text|yesno:"true,false" }}, initialText: '{% trans "Select a rating" %}'});
+
+	</script>
+
+<!-- 	  <form action="{% review_form_target %}" method="post">
+	    {% csrf_token %}
+	    {{ form }}
+	    <tr>
+	      <td colspan="2">
+	        <input type="submit" name="submit" value="Post">
+			<input type="hidden" name="next" value="{% url 'review_was_posted' %}" />
+	      </td>
+	    </tr>
+	  </form> -->
+
+{% endblock %}
+
+  <!-- <button type="button" class="btn btn-info">Review this washroom</button> -->
+</body>
+
+</html>
+
+

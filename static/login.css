@@ -1,0 +1,19 @@
+body {
+    background-image: url("bg2.jpg");
+    color: #cccccc;
+}
+
+
+table{
+  position:absolute;
+  top:40%;
+  margin-left:10%;
+  font-size: 20px;
+}
+
+#login-btn{
+  position: absolute;
+  top: 50%;
+  margin-left:25%;
+  font-size:20px;
+}

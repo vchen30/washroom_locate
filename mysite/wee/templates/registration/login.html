@@ -1,0 +1,47 @@
+<!--Authentication tutorial: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Generic_views-->
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Washroom Details</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{% static 'login.css'%}">
+</head>
+
+<body>
+  {% include 'wee/layouts/navbar.html' %}
+  {% if form.errors %}
+  <p>Your username and password didn't match. Please try again.</p>
+  {% endif %}
+
+  {% if next %}
+  {% if user.is_authenticated %}
+  <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+  {% else %}
+  <p>Please login to see this page.</p>
+  {% endif %}
+  {% endif %}
+  <form method="post" action="{% url 'login' %}">
+    <div id="login-container">
+      {% csrf_token %}
+      <h1> Where 2 Wee Login <h1>
+      <table>
+        <tr>
+          <td>{{ form.username.label_tag }}</td>
+          <td>{{ form.username }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.password.label_tag }}</td>
+          <td>{{ form.password }}</td>
+        </tr>
+      </table>
+      <input type="submit" value="login" id="login-btn"/>
+      <input type="hidden" name="next" value="{{ next }}" />
+    </div>
+  </form>
+</body>
+
+</html>

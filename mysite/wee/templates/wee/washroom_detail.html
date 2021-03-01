@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Washroom Details</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{% static 'washroom_detail.css'%}">
+</head>
+
+<body>
+  {% include 'wee/layouts/navbar.html' %}
+  {% load reviews %}
+
+  {% load i18n %}
+  {% block rating_container %}
+  <span class="star-rating"{% if average_rating %} itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating"{% endif %}>
+  {% if average_rating %}
+  <meta itemprop="worstRating" content="1" />
+  <meta itemprop="bestRating" content="{{ rating_choices|length }}" />
+  <meta itemprop="ratingValue" content="{{ average_rating }}" />
+  <meta itemprop="ratingCount" content="{{ review_count }}" />
+  <meta itemprop="reviewCount" content="{{ review_count }}" />
+  {% endif %}
+  {% block rating_stars %}
+  {% include "reviews/rating_value.html" with rating=average_rating rating_star=average_rating_star rating_text=average_rating_text %}
+  {% endblock rating_stars %}
+  {% block rating_details %}
+  {% if show_rating_text and average_rating %}
+  <span class="star-rating-details">
+  {% blocktrans count review_count=review_count %}{{ review_count }} review{% plural %}{{ review_count }} reviews{% endblocktrans %}:
+  <strong>{{ average_rating }}</strong> ({{ average_rating_text }})</span>
+  {% endif %}
+  {% endblock rating_details %}
+  </span>
+  {% endblock rating_container %}
+
+  <h1 id="title" style="padding-top: 30px;"><strong>Washroom {{washrooms.id}} </strong></h1>
+  <div class="container" id="toilet-info" style="width:25vw;">
+    <div class="row">
+      <div class="col"> Rating</div>
+      {% get_rating for wee.washroom washrooms.id as avg_rating%}
+      <div class="col">{{ avg_rating }}</div><!-- {{ washrooms.rating }} -->
+
+      <div class="w-100"></div>
+      <div class="col">Type</div>
+      <div class="col">
+        {% if "Type unknown" in washrooms.type %}
+        <p> Not available </p>
+        {% else %}
+        {{washrooms.type}}
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Water fountain</div>
+      <div class="col">
+        {% if "True" in washrooms.water %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Wheelchair</div>
+      <div class="col">
+        {% if "True" in washrooms.wheelchair %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Changing table</div>
+      <div class="col">
+        {% if "True" in washrooms.diaper %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Unisex</div>
+      <div class="col">{% if "True" in washrooms.unisex %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Public</div>
+      <div class="col">{% if "True" in washrooms.access %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+
+      <div class="w-100"></div>
+      <div class="col">Indoor</div>
+      <div class="col">{% if "True" in washrooms.indoor %}
+        <img src="{% static "checkmark.png" %}" style="width:20px;">
+        {% else %}
+        <img src="{% static "close.png" %}" style="width:20px;">
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+{% block content %}
+  {% load reviews i18n %}
+    {% load reviews %}
+
+    <!-- {% get_review_list for washrooms as review_list %} -->
+<div id="rating-information" style="position: absolute; top: 20%; right: 5%; border-radius: 25px; background-color: white; width: 20vw; padding:1em;">
+  Rating scale:
+  <ul>
+    <li> Terrible - 1 </li>
+    <li> Poor - 2 </li>
+    <li> Average - 3</li>
+    <li> Very Good - 4 </li>
+    <li> Excellent -5 </li>
+</div>
+
+    {% get_review_list for washrooms as review_list %}
+            <dl id="review-list" style="opacity:0.9; position:absolute; font-size: 15px; border-radius: 25px; top: 20%; right:30%; padding: 1em; background-color: white; width: 40vw;">
+              <h3 style="text-align: center;"> <strong> Reviews for this washroom </strong></h3>
+              {% if review_list%}
+                {% for review in review_list %}
+                <div id="review-box" style="border: 1px solid #cccccc;">
+                  <dt id="r{{ review.id }}" style="padding:20px; ">
+                    Username: {{ review.user }}<br>
+                    Rating out of 5: {{ review.rating }} <br>
+                    Posted on {{ review.submit_date }} <br>
+                  </dt>
+                  <dd style="padding:20px;">
+                    <p>Comment: {{ review.comment}}</p>
+                  </dd>
+                </div>
+                {% endfor %}
+              {% else %}
+                <p> There is no review for this washroom </p>
+              {% endif %}
+
+            </dl>
+
+
+    <br>
+    <!-- <input type="button" value="Back" onclick="history.back()"/> -->
+
+{% endblock %}
+
+  <!-- <button type="button" id="review" class="btn btn-info" value="{% url 'review_washroom' washrooms.id %}">Review this washroom</button> -->
+  <button id="details" type="button" class="btn btn-info" style="margin-left: 3%;">
+    <a href="{% url 'review_washroom' washrooms.id %}" style="color: white;">
+      Review this washroom
+    </a>
+  </button>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+.flip {
+  transform: rotate(180deg);
+}
+
+#open_sidebar {
+  -moz-transition: transform 0.5s;
+  -webkit-transition: transform 0.5s;
+  transition: transform 0.5s;
+}
+
+#instructions {
+  position: absolute;
+  margin: 20px;
+  width: 25%;
+  top: 10%;
+  bottom: 32%;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  overflow-y: scroll;
+  font-family: sans-serif;
+  font-size: 0.8em;
+  line-height: 1.6em;
+  border-radius: 25px;
+}
+
+#instructions::-webkit-scrollbar {
+  display: none;
+}
+
+#submit-btn{
+   width:90%;
+   margin-top:5%;
+}
+
+#table-container{
+  width:0;
+  height: 65%;
+  bottom: 0;
+  right:0;
+  overflow-y: scroll;
+  transition: 0.5s;
+}
+
+th{
+  position: sticky;
+  margin-top: 10%;  
+}
+
+#toilet-table{
+  width:100%;
+}
+
+#map{
+  width: 100vw;
+  height: 92%;
+}
+
+#sidebar{
+  position: fixed;
+  background-color: white;
+  width:0;
+  height: 95vh;
+  right:0;
+  z-index: 100;
+  box-shadow: -3px 0px 10px 1px #c0bfbf;
+  transition: 0.5s;
+}
+
+form{
+  top:1%;
+  left:1%;
+  height:10vh;
+}
+
+#filter-form{
+  position:absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+}

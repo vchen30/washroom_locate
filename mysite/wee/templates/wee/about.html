@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Washroom Details</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{% static 'about.css'%}">
+  </head>
+
+<body>
+  {% include 'wee/layouts/navbar.html' %}
+  <div id="content">
+    <h1> <strong>Where 2 Wee locates washrooms all across British Columbia and helps you find where to wee.</strong></h1>
+    <h5> Where 2 Wee uses a dataset from <a href="https://www.openstreetmap.org/#map=19/49.36677/-122.94792">OpenStreetMap</a> that includes information about the locations and opening hours of washrooms and whether a washroom is
+      wheelchair-accessible, unisex, etc.</h5>
+    <h5>Save your dignity today with Where 2 Wee!</h5>
+    <p> All icons used in Where 2 Wee are from <a href="https://www.flaticon.com/">Flaticon</a>.
+  </div>
+</body>
+
+</html>

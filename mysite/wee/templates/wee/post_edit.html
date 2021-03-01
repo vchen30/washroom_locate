@@ -1,0 +1,10 @@
+{% extends 'wee/layouts/base.html' %}
+
+{% block content %}
+    <h2>New post</h2>
+    <p> Work in progress - creating a new post and saving it does not work right now </p>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+{% endblock %}
