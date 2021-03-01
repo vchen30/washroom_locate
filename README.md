@@ -1,6 +1,6 @@
 # WhereToWee Web Application
 
-## Authors
+![Screenshot](https://github.com/vchen30/washroom_locate/blob/master/sample.PNG)
 
 ## How to run
 
